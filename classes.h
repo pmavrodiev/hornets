@@ -1,29 +1,20 @@
 #ifndef _CLASSES_H
 #define _CLASSES_H
 
+#include <iostream>
+#include <math.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_month.hpp>
 #include <boost/date_time/gregorian/formatters.hpp>
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <cctype>
-#include <algorithm>
 
-
-using namespace boost;
+//using namespace boost;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 using namespace std;
+
+const int iD = 1; const char cD = '1'; const string sD = "1"; 
+const int iD2 = 3; const char cD2 = '3'; const string sD2 = "3";
 
 
 /* ======================== CLASS DEFINITIONS ========================== */
@@ -50,27 +41,50 @@ public:
   event(ptime whichtime, int a, int n);
 };
 
+
 class decoded_pattern {
+public:
   time_duration patternduration;
-  pair<int,int> ptr_to_event_vector;
+  ptime start_time;
+  ptime end_time;
   string name;
+  int nest; //for which nest is this pattern? only for "inside" patterns  
   decoded_pattern();
-  decoded_pattern(string name,pair<int,int> ptr, time_duration td);
+  decoded_pattern(string n,time_duration td, ptime start, ptime end);
+  decoded_pattern(string n,time_duration td, ptime start, ptime end, int nest);
+  void print(ostream *);
 };
 
+
 class Hornet {
+private:
+    bool is_good(int* start_pos, int* first, int* second);
 public:
     string hexid;
-    string valid_indeces;
+    string my_events_as_strings;
     vector<event> my_events;
-    vector<decoded_pattern> my_decoded_patterns;
+    vector<decoded_pattern> inside;
+    vector<decoded_pattern> outside;
+    vector<decoded_pattern> transitions;
+    //vector<decoded_pattern> my_decoded_patterns;
+    pair<int,int> find_repetitive_sequence(string s, int start_pos);
     Hornet(string Id);
-    Hornet();
-    int construct_valid_indeces();
-    int decode_events();
-    bool check_valid_event(unsigned idx);
+    Hornet();   
+    int decode_events();   
     void print(ostream *out);
-    void print2(ostream *out,unsigned limit);
+    void print2(ostream *out,unsigned start,unsigned end);
+    void print3(ostream *out);  
+    void print_inside(ostream *out1,ostream *out2);
+    void print_outside(ostream *out1);
+
 };
+
+class Hornet_ptr {
+public:
+  Hornet *h_ptr;
+  Hornet_ptr();
+  Hornet_ptr(Hornet *);
+};
+
 
 #endif
